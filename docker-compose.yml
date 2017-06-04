@@ -1,0 +1,26 @@
+version: '3'
+
+services:
+  beeper:
+    build: .
+    command: /bin/bash
+    ports:
+      - "5001:5001"
+    depends_on:
+      - beeping
+      - elastic
+
+  beeping:
+    image: doubtingben/beeping:1
+    environment:
+      - BEEPING_LISTEN=0.0.0.0
+    ports:
+      - "8080:8080"
+
+  elastic:
+    image: elasticsearch:5
+    ports:
+      - "9200:9200"
+    volumes:
+      - ./dockerfiles/elasticsearch/5/conf/jvm.options:/srv/elasticsearch/config/jvm.options
+      - ./dockerfiles/elasticsearch/5/conf/elasticsearch.yml:/srv/elasticsearch/config/elasticsearch.yml
