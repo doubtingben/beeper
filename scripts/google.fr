@@ -1,0 +1,7 @@
+{
+  "url": "https://google.fr",
+  "pattern": "find me",
+  "header": "Server:GitHub.com",
+  "insecure": false,
+  "timeout": 20
+}
