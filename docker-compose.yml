@@ -24,3 +24,10 @@ services:
     volumes:
       - ./dockerfiles/elasticsearch/5/conf/jvm.options:/srv/elasticsearch/config/jvm.options
       - ./dockerfiles/elasticsearch/5/conf/elasticsearch.yml:/srv/elasticsearch/config/elasticsearch.yml
+
+  cerebro:
+    image: yannart/cerebro:0.6.5
+    ports:
+      - "9000:9000"
+    links:
+      - "elastic:elasticsearch"
