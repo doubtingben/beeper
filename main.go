@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/doubtingben/beeper/result"
+	"github.com/doubtingben/beeper/storage/elasticsearch"
 )
 
 // Check that will be passed to beeping
@@ -59,11 +60,16 @@ func main() {
 	defer resp.Body.Close()
 
 	dec := json.NewDecoder(resp.Body)
-	var result result.Result
-	err = dec.Decode(&result)
+	var result1 result.Result
+	err = dec.Decode(&result1)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(result)
+	fmt.Println(result1)
+
+	var record *result1
+	if err := store.Save(record); err != nil {
+		panic(err)
+	}
 
 }

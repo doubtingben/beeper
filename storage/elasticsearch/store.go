@@ -9,27 +9,25 @@ import (
 	"gopkg.in/olivere/elastic.v5"
 )
 
-type resultData struct {
-}
-
-func esStorage() {
+// Save to store the result in elasticsearch
+func Save(result *result.Result) error {
 	ctx := context.Background()
 
 	client, err := elastic.NewClient()
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	// Ping with context
 	info, code, err := client.Ping("http://127.0.0.1:9200").Do(ctx)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	fmt.Printf("Elasticsearch returned with code %d and version %s", code, info.Version.Number)
 	esversion, err := client.ElasticsearchVersion("http://127.0.0.1:9200")
 	if err != nil {
 		// Handle error
-		panic(err)
+		return err
 	}
 	fmt.Printf("Elasticsearch version %s", esversion)
 
@@ -38,13 +36,13 @@ func esStorage() {
 	index := "beep-" + t.Format("2006-01-02")
 	exists, err := client.IndexExists(index).Do(ctx)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	if !exists {
 		fmt.Println("Creating index")
 		createIndex, err := client.CreateIndex(index).Do(ctx)
 		if err != nil {
-			panic(err)
+			return err
 		}
 		if !createIndex.Acknowledged {
 			fmt.Println("Index creation not ackowledged")
@@ -54,16 +52,14 @@ func esStorage() {
 	}
 
 	// Index a result (using JSON serialization)
-	result1 := result.Result{HTTPStatus: "200", HTTPStatusCode: 200,
-		InstanceName: "someInstance", DNSLookup: 43, ServerProcessing: 65}
 	put1, err := client.Index().
 		Index(index).
 		Type("result").
 		Id("1").
-		BodyJson(result1).
+		BodyJson(result).
 		Do(ctx)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	fmt.Printf("Indexed reult %s to index %s, type %s\n",
 		put1.Id, put1.Index, put1.Type)
@@ -71,6 +67,8 @@ func esStorage() {
 	// Flush to make sure the documents got written.
 	_, err = client.Flush().Index(index).Do(ctx)
 	if err != nil {
-		panic(err)
+		return err
 	}
+
+	return nil
 }
